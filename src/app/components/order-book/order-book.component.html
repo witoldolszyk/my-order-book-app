@@ -1,0 +1,38 @@
+<div *ngIf="snapshot$ | async as snap">
+  <h3>Order Book {{ snap.timeText }}</h3>
+
+  <!-- BIDS -->
+  <ngx-charts-bar-horizontal
+    [view]="view"
+    [results]="bidsSeries$ | async"
+    [gradient]="gradient"
+    [xAxis]="showXAxis"
+    [yAxis]="showYAxis"
+    [showXAxisLabel]="showXAxisLabel"
+    [xAxisLabel]="xAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [yAxisLabel]="yAxisLabel"
+    [showDataLabel]="true"
+    [dataLabelFormatting]="formatValue"
+    [xAxisTickFormatting]="formatValue">
+  </ngx-charts-bar-horizontal>
+
+  <!-- ASKS -->
+  <ngx-charts-bar-horizontal
+    [view]="view"
+    [results]="asksSeries$ | async"
+    [gradient]="gradient"
+    [xAxis]="showXAxis"
+    [yAxis]="showYAxis"
+    [showXAxisLabel]="showXAxisLabel"
+    [xAxisLabel]="xAxisLabel"
+    [showYAxisLabel]="showYAxisLabel"
+    [yAxisLabel]="yAxisLabel"
+    [showDataLabel]="true"
+    [dataLabelFormatting]="formatValue"
+    [xAxisTickFormatting]="formatValue">
+  </ngx-charts-bar-horizontal>
+
+  <button (click)="previous()">← Prev</button>
+  <button (click)="next()">Next →</button>
+</div>
