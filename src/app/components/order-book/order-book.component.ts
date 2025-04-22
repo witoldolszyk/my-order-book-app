@@ -1,3 +1,4 @@
+// src/app/components/order-book/order-book.component.ts
 import { Component, ChangeDetectionStrategy, OnInit, OnDestroy } from '@angular/core';
 import { Observable, BehaviorSubject, combineLatest, Subscription } from 'rxjs';
 import { map, filter, take } from 'rxjs/operators';
@@ -24,7 +25,7 @@ export class OrderBookComponent implements OnInit, OnDestroy {
 
   isPlaying = false;
   private replayTimeouts: any[] = [];
-  private totalReplayDuration = 300000;
+  private totalReplayDuration = 200000; 
   private subs = new Subscription();
 
   view: [number, number] = [600, 300];
@@ -50,8 +51,8 @@ export class OrderBookComponent implements OnInit, OnDestroy {
       filter((s): s is Snapshot => s !== null),
       map(snap =>
         snap.bids.map(lvl => ({
-          name: lvl.price != null ? lvl.price.toString() : '',
-          value: lvl.size != null ? +lvl.size : 0
+          name: lvl.price?.toString() ?? '',
+          value: +lvl.size || 0
         }))
       )
     );
@@ -60,8 +61,8 @@ export class OrderBookComponent implements OnInit, OnDestroy {
       filter((s): s is Snapshot => s !== null),
       map(snap =>
         snap.asks.map(lvl => ({
-          name: lvl.price != null ? lvl.price.toString() : '',
-          value: lvl.size != null ? +lvl.size : 0
+          name: lvl.price?.toString() ?? '',
+          value: +lvl.size || 0
         }))
       )
     );
@@ -91,10 +92,11 @@ export class OrderBookComponent implements OnInit, OnDestroy {
   formatValue(val: number): string {
     return val.toLocaleString();
   }
+
   startReplay(): void {
     if (this.isPlaying) return;
     this.isPlaying = true;
-    this.scheduleReplay();
+    this.scheduleReplayFromCurrent();
   }
 
   pauseReplay(): void {
@@ -107,20 +109,32 @@ export class OrderBookComponent implements OnInit, OnDestroy {
     this.indexSubject.next(0);
   }
 
-  private scheduleReplay(): void {
+  private scheduleReplayFromCurrent(): void {
     this.clearReplay();
     this.service.getSnapshots().pipe(take(1)).subscribe(snaps => {
-      if (snaps.length < 2) return;
+      if (snaps.length < 2) {
+        this.isPlaying = false;
+        return;
+      }
       const timestamps = snaps.map(s => s.timestamp);
       const minT = timestamps[0];
       const maxT = timestamps[timestamps.length - 1];
       const span = maxT - minT;
 
+      const currentIndex = this.indexSubject.value;
+      const elapsed = timestamps[currentIndex] - minT;
+      const remainingSpan = span - elapsed;
+      const remainingDuration = this.totalReplayDuration * (remainingSpan / span);
+
       snaps.forEach((_, idx) => {
-        const when = ((timestamps[idx] - minT) / span) * this.totalReplayDuration;
+        if (idx <= currentIndex) return;
+        const delta = timestamps[idx] - timestamps[currentIndex];
+        const when = (delta / remainingSpan) * remainingDuration;
         const t = setTimeout(() => {
           this.indexSubject.next(idx);
-          if (idx === snaps.length - 1) this.isPlaying = false;
+          if (idx === snaps.length - 1) {
+            this.isPlaying = false;
+          }
         }, when);
         this.replayTimeouts.push(t);
       });
