@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import rawData from '../../assets/sample.json';
 
 import { RawSnapshot, Snapshot, Level } from '../models/order-book.model';

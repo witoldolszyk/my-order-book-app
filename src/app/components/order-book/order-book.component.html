@@ -1,7 +1,13 @@
+<app-replay-controls
+  [isPlaying]="isPlaying"
+  (play)="startReplay()"
+  (pause)="pauseReplay()"
+  (reset)="resetReplay()">
+</app-replay-controls>
+
 <div *ngIf="snapshot$ | async as snap">
   <h3>Order Book {{ snap.timeText }}</h3>
 
-  <!-- BIDS -->
   <ngx-charts-bar-horizontal
     [view]="view"
     [results]="bidsSeries$ | async"
@@ -17,7 +23,6 @@
     [xAxisTickFormatting]="formatValue">
   </ngx-charts-bar-horizontal>
 
-  <!-- ASKS -->
   <ngx-charts-bar-horizontal
     [view]="view"
     [results]="asksSeries$ | async"
@@ -33,6 +38,8 @@
     [xAxisTickFormatting]="formatValue">
   </ngx-charts-bar-horizontal>
 
-  <button (click)="previous()">← Prev</button>
-  <button (click)="next()">Next →</button>
+  <div class="nav-buttons">
+    <button class="btn-nav" (click)="previous()">← Prev</button>
+    <button class="btn-nav" (click)="next()">Next →</button>
+  </div>
 </div>

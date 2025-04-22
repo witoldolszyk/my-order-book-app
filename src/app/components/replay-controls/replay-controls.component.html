@@ -1,1 +1,8 @@
-<p>replay-controls works!</p>
+<div class="replay-controls">
+    <button class="btn" (click)="onPlayPause()">
+        {{ isPlaying ? 'Pause' : 'Play' }}
+    </button>
+    <button class="btn reset" (click)="onReset()">
+        Reset
+    </button>
+</div>
